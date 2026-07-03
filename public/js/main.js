@@ -122,7 +122,13 @@ addEventListener('mousedown', (e) => {
 });
 
 // ---------- network ----------
-const net = new Net((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
+// ?server=host:port lets the desktop build load the page from localhost while
+// joining a remote host; ?name= prefills the explorer name from the launcher menu.
+const qs = new URLSearchParams(location.search);
+const serverAddr = qs.get('server');
+const net = new Net(serverAddr
+  ? 'ws://' + serverAddr
+  : (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
 const voice = new Voice(net);
 
 net.on('init', (m) => {
@@ -233,6 +239,7 @@ async function join(withVoice) {
 }
 $('joinVoice').onclick = () => join(true);
 $('joinMuted').onclick = () => join(false);
+if (qs.get('name')) $('nameInput').value = qs.get('name').slice(0, 16);
 $('nameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') join(true); });
 
 // ---------- remote avatars ----------

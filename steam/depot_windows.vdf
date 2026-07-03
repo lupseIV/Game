@@ -1,0 +1,14 @@
+"DepotBuild"
+{
+	"DepotID" "YOUR_WINDOWS_DEPOT_ID"
+
+	// electron-builder --win puts the unpacked game in dist/win-unpacked
+	"ContentRoot" "../dist/win-unpacked/"
+
+	"FileMapping"
+	{
+		"LocalPath" "*"
+		"DepotPath" "."
+		"recursive" "1"
+	}
+}

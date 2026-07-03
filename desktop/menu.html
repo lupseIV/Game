@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Emerald Canopy</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif; color: #e8f5dc;
+    background: radial-gradient(ellipse at 50% 30%, #1c3312, #060c04 75%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .wrap { text-align: center; display: flex; flex-direction: column; gap: 22px; align-items: center; padding: 24px; }
+  h1 { font-size: 52px; letter-spacing: 4px; color: #a7e87b; text-shadow: 0 0 28px #3d7a1f; }
+  .sub { color: #9dbf85; max-width: 620px; line-height: 1.5; }
+  .card {
+    background: rgba(20, 36, 14, 0.7); border: 1px solid #33511f; border-radius: 12px;
+    padding: 22px 28px; display: flex; flex-direction: column; gap: 14px; min-width: 420px;
+  }
+  label { font-size: 13px; color: #8fb377; text-align: left; }
+  input {
+    padding: 12px 14px; font-size: 17px; border-radius: 8px; border: 2px solid #4a7a33;
+    background: #101c0a; color: #e8f5dc; outline: none; width: 100%;
+  }
+  button {
+    padding: 14px 24px; font-size: 17px; border-radius: 8px; border: none; cursor: pointer;
+    background: #4a8a2c; color: #fff; font-weight: 700; transition: background .15s, transform .1s;
+  }
+  button:hover { background: #5aa838; transform: translateY(-1px); }
+  button.alt { background: #3a4a33; }
+  button.alt:hover { background: #4a5a43; }
+  .joinrow { display: flex; gap: 10px; }
+  .joinrow input { flex: 1; }
+  .joinrow button { white-space: nowrap; }
+  .foot { font-size: 12px; color: #6f8f5c; line-height: 1.7; }
+  .steam { font-size: 13px; color: #7bb8ff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🕷 EMERALD CANOPY 🌿</h1>
+  <div class="sub">
+    Parkour the jungle canopy with friends, machete the spiders, and don't move —
+    don't even <i>speak</i> — when the Broodmother is near.
+  </div>
+  <div class="card">
+    <label>Explorer name</label>
+    <input id="name" maxlength="16" placeholder="Your explorer name" autocomplete="off">
+    <button id="host">🏕 Host expedition</button>
+    <label>…or join a friend's expedition</label>
+    <div class="joinrow">
+      <input id="addr" placeholder="host address, e.g. 192.168.1.20:27960" autocomplete="off">
+      <button class="alt" id="join">Join</button>
+    </div>
+  </div>
+  <div class="steam" id="steam"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let info = { port: 27960, persona: null, lan: [], steamActive: false, version: '' };
+
+  window.desktop.info().then((i) => {
+    info = i;
+    const saved = localStorage.getItem('ec_name');
+    $('name').value = saved || i.persona || '';
+    $('addr').value = localStorage.getItem('ec_addr') || '';
+    $('steam').textContent = i.steamActive ? `Signed in through Steam as ${i.persona}` : '';
+    const lan = i.lan.length ? `Friends join you at: ${i.lan.map((a) => a + ':' + i.port).join('  ·  ')}` : '';
+    $('foot').innerHTML = `${lan}<br>Browser players can also join at http://&lt;your-ip&gt;:${i.port} — v${i.version}`;
+  });
+
+  function go(server) {
+    const name = $('name').value.trim();
+    localStorage.setItem('ec_name', name);
+    const p = new URLSearchParams();
+    if (name) p.set('name', name);
+    if (server) { p.set('server', server); localStorage.setItem('ec_addr', server); }
+    location.href = `http://localhost:${info.port}/?` + p.toString();
+  }
+
+  $('host').onclick = () => go(null);
+  $('join').onclick = () => {
+    let a = $('addr').value.trim();
+    if (!a) return;
+    if (!a.includes(':')) a += ':' + info.port;
+    go(a);
+  };
+  $('addr').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('join').click(); });
+  $('name').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('host').click(); });
+</script>
+</body>
+</html>

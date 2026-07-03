@@ -1,0 +1,17 @@
+// SteamPipe app build script — edit the AppID/DepotID to the ones from your
+// Steamworks partner dashboard, then run:
+//   steamcmd +login <builder_account> +run_app_build ../steam/app_build.vdf +quit
+"AppBuild"
+{
+	"AppID" "YOUR_APP_ID"
+	"Desc" "Emerald Canopy v0.1.0"
+
+	// paths are relative to this script
+	"ContentRoot" "../dist/"
+	"BuildOutput" "../steam-build-logs/"
+
+	"Depots"
+	{
+		"YOUR_WINDOWS_DEPOT_ID" "depot_windows.vdf"
+	}
+}

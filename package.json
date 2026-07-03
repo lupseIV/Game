@@ -1,14 +1,58 @@
 {
-  "name": "jungle-parkour-spiders",
+  "name": "emerald-canopy",
   "version": "0.1.0",
   "private": true,
   "description": "Multiplayer jungle parkour with spider mobs, a movement-sensing boss spider and proximity voice chat",
+  "author": "lupseIV",
+  "main": "desktop/main.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "app": "electron .",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux",
+    "dist:mac": "electron-builder --mac"
   },
   "dependencies": {
     "express": "^4.19.2",
     "three": "^0.165.0",
     "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.lupseiv.emeraldcanopy",
+    "productName": "Emerald Canopy",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**",
+      "public/**",
+      "server/**",
+      "shared/**"
+    ],
+    "asarUnpack": [
+      "**/node_modules/steamworks.js/**"
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ]
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "category": "Game"
+    },
+    "mac": {
+      "target": [
+        "dir"
+      ],
+      "category": "public.app-category.games"
+    }
   }
 }

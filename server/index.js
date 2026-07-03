@@ -5,7 +5,6 @@ const { WebSocketServer } = require('ws');
 
 const level = require(path.join(__dirname, '..', 'shared', 'level.json'));
 
-const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/shared', express.static(path.join(__dirname, '..', 'shared')));
@@ -15,6 +14,9 @@ app.get('/vendor/three.module.js', (_req, res) =>
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
+// ws re-emits http server errors (e.g. EADDRINUSE during port fallback);
+// without a listener that becomes an unhandled throw
+wss.on('error', (e) => { if (e.code !== 'EADDRINUSE') console.error('ws error:', e.message); });
 
 const now = () => Date.now() / 1000;
 
@@ -290,6 +292,27 @@ wss.on('connection', (ws) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Emerald Canopy running on http://localhost:${PORT}`);
-});
+function start(port = Number(process.env.PORT) || 3000, tries = 10) {
+  return new Promise((resolve, reject) => {
+    const onListening = () => {
+      server.removeListener('error', onError);
+      console.log(`Emerald Canopy running on http://localhost:${port}`);
+      resolve(port);
+    };
+    const onError = (err) => {
+      server.removeListener('listening', onListening);
+      server.removeListener('error', onError);
+      if (err.code === 'EADDRINUSE' && tries > 0) resolve(start(port + 1, tries - 1));
+      else reject(err);
+    };
+    server.once('listening', onListening);
+    server.once('error', onError);
+    server.listen(port);
+  });
+}
+
+if (require.main === module) {
+  start().catch((e) => { console.error(e); process.exit(1); });
+}
+
+module.exports = { start };
